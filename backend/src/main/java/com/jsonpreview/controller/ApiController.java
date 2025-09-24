@@ -1,3 +1,19 @@
+/**
+ * Main REST API Controller for JsonParsePreview Application
+ * 
+ * This controller handles all HTTP requests for the JSON API response beautifier,
+ * including file uploads, request execution, and health checks.
+ * 
+ * Features:
+ * - Postman collection and environment file upload
+ * - Direct JSON response file upload for instant beautification
+ * - API request execution with parameter substitution
+ * - Cross-origin support for React frontend (localhost:3000)
+ * 
+ * @author JsonParsePreview Team
+ * @version 1.0.0
+ * @since 2025-09-24
+ */
 package com.jsonpreview.controller;
 
 import com.jsonpreview.dto.ApiResponseDto;
@@ -15,35 +31,72 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
+/**
+ * REST Controller providing API endpoints for JSON processing and Postman collection management
+ * 
+ * Base URL: /api
+ * CORS enabled for: http://localhost:3000 (React development server)
+ */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ApiController {
     
+    // Logger for tracking API requests and debugging
     private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
     
+    // Service dependencies injected via Spring's dependency injection
     @Autowired
     private PostmanParserService postmanParserService;
     
     @Autowired
     private ApiExecutionService apiExecutionService;
     
+    /**
+     * Upload and parse a Postman collection file
+     * 
+     * Accepts multipart file uploads containing Postman Collection v2.1 JSON format.
+     * The collection is parsed and stored in memory for subsequent request execution.
+     * 
+     * @param file MultipartFile containing Postman collection JSON
+     * @return ResponseEntity with success status and collection metadata
+     * 
+     * @throws Exception if file parsing fails or invalid format is provided
+     * 
+     * Example successful response:
+     * {
+     *   "success": true,
+     *   "message": "Collection uploaded successfully", 
+     *   "collectionName": "My API Collection"
+     * }
+     */
     @PostMapping("/upload/collection")
     public ResponseEntity<?> uploadCollection(@RequestParam("file") MultipartFile file) {
         try {
-            logger.info("Uploading collection file: {}", file.getOriginalFilename());
+            logger.info("Uploading collection file: {} (size: {} bytes)", 
+                       file.getOriginalFilename(), file.getSize());
+            
+            // Parse the uploaded Postman collection
             PostmanCollection collection = postmanParserService.parseCollection(file);
+            
+            logger.info("Successfully parsed collection: {} with {} items", 
+                       collection.getInfo().getName(), 
+                       collection.getItem().size());
+            
             return ResponseEntity.ok().body(Map.of(
                 "success", true,
                 "message", "Collection uploaded successfully",
-                "collectionName", collection.getInfo().getName()
+                "collectionName", collection.getInfo().getName(),
+                "itemCount", collection.getItem().size()
             ));
         } catch (Exception e) {
-            logger.error("Error uploading collection: {}", e.getMessage(), e);
+            logger.error("Error uploading collection file '{}': {}", 
+                        file.getOriginalFilename(), e.getMessage(), e);
             return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
-                "error", e.getMessage()
+                "error", "Failed to parse collection: " + e.getMessage()
             ));
         }
     }

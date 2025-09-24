@@ -1,3 +1,18 @@
+/**
+ * Main Application Component - JsonParsePreview
+ * 
+ * This is the root component that orchestrates the entire application,
+ * managing state for file uploads, API requests, and UI interactions.
+ * 
+ * Features:
+ * - Multi-format file upload (Collections, Environments, JSON)
+ * - Real-time API request execution
+ * - Interactive JSON response visualization
+ * - Modern responsive design with loading states
+ * 
+ * @author JsonParsePreview Team
+ * @version 1.0.0
+ */
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ParameterInput from './components/ParameterInput';
@@ -5,26 +20,53 @@ import JsonViewer from './components/JsonViewer';
 import { apiService } from './services/apiService';
 import './index.css';
 
+/**
+ * Main App Component
+ * 
+ * Manages application state including:
+ * - Uploaded files and parsed requests
+ * - API execution state and responses
+ * - UI mode switching (collection vs direct JSON view)
+ * - Error handling and loading states
+ */
 function App() {
+  // State for managing API requests and collections
   const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [apiResponse, setApiResponse] = useState(null);
+  
+  // Loading and execution states
   const [isLoading, setIsLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
+  
+  // Error handling
   const [error, setError] = useState(null);
+  
+  // UI state management
   const [viewMode, setViewMode] = useState('collection'); // 'collection' or 'json-response'
+  const [jsonPreviewMode, setJsonPreviewMode] = useState('beautified'); // 'raw' or 'beautified'
 
-  // Load requests after collection upload
+  /**
+   * Load and parse requests from uploaded collection
+   * 
+   * Fetches the parsed requests from the backend after a successful
+   * collection upload and auto-selects the first available request.
+   */
   const loadRequests = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const fetchedRequests = await apiService.getRequests();
-      setRequests(fetchedRequests);
       
-      // Auto-select first request if available
+      console.log('Loading requests from uploaded collection...');
+      const fetchedRequests = await apiService.getRequests();
+      
+      setRequests(fetchedRequests);
+      console.log(`Loaded ${fetchedRequests.length} requests from collection`);
+      
+      // Auto-select first request for better UX
       if (fetchedRequests.length > 0) {
         setSelectedRequest(fetchedRequests[0]);
+        console.log(`Auto-selected request: ${fetchedRequests[0].name}`);
       }
     } catch (err) {
       console.error('Error loading requests:', err);
@@ -34,32 +76,61 @@ function App() {
     }
   };
 
-  // Handle collection upload
+  /**
+   * Handle Postman collection file upload
+   * 
+   * Uploads collection file to backend, switches to collection view mode,
+   * and loads the parsed requests for user selection.
+   * 
+   * @param {File} file - The uploaded Postman collection JSON file
+   */
   const handleUploadCollection = async (file) => {
     try {
       setError(null);
+      setIsLoading(true);
+      
+      console.log('Uploading collection file:', file.name, `(${file.size} bytes)`);
       const response = await apiService.uploadCollection(file);
+      
       if (response.success) {
         setViewMode('collection');
         setApiResponse(null); // Clear any existing JSON response
+        
+        console.log('Collection uploaded successfully:', response.collectionName);
+        
         // Load requests after successful upload
         await loadRequests();
       } else {
         setError(response.error || 'Failed to upload collection');
+        console.error('Collection upload failed:', response.error);
       }
     } catch (err) {
       console.error('Error uploading collection:', err);
       setError('Failed to upload collection. Please check the file format.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle environment upload
+  /**
+   * Handle environment variables file upload
+   * 
+   * Uploads environment file to backend for parameter substitution
+   * during API request execution.
+   * 
+   * @param {File} file - The uploaded Postman environment JSON file
+   */
   const handleUploadEnvironment = async (file) => {
     try {
       setError(null);
+      console.log('Uploading environment file:', file.name);
+      
       const response = await apiService.uploadEnvironment(file);
       if (!response.success) {
         setError(response.error || 'Failed to upload environment');
+        console.error('Environment upload failed:', response.error);
+      } else {
+        console.log('Environment uploaded successfully');
       }
     } catch (err) {
       console.error('Error uploading environment:', err);
