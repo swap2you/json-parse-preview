@@ -1,29 +1,39 @@
-# JsonParsePreview - Complete Setup & Development Guide
+# 🔧 JsonParsePreview - Setup Guide
 
-## 🚀 Quick Start
+> **Quick Setup Guide for Development and Production**
+
+This streamlined guide gets you up and running quickly. For detailed installation instructions, see [docs/SETUP.md](docs/SETUP.md).
+
+## ⚡ Quick Start (Windows)
 
 ### Prerequisites
-- **Java 17+** (JDK 17.0.12 or higher)
-- **Node.js 18+** and npm
-- **Maven 3.8+**
-- **Git** (optional)
+Ensure you have these installed:
+- ☑️ **Java 17+** - `java -version` (should show 17.0.12 or higher)
+- ☑️ **Node.js 18+** - `node --version` 
+- ☑️ **Maven 3.6+** - `mvn --version`
 
 ### Environment Setup
 ```powershell
-# Set JAVA_HOME (Windows)
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-17.0.12"
-setx JAVA_HOME "C:\Program Files\Java\jdk-17.0.12"
+# Set JAVA_HOME (Windows - run as Administrator)
+setx JAVA_HOME "C:\Program Files\Java\jdk-17.0.12" /M
+setx PATH "%PATH%;%JAVA_HOME%\bin" /M
 
-# Verify Java installation
+# Restart terminal and verify
 java -version
-javac -version
 ```
 
-### 1. Clone or Download Project
-```bash
-git clone <repository-url>
-cd JsonParsePreview
+### 🚀 One-Command Setup
+```powershell
+# Run these batch scripts in order:
+.\setup-project.bat    # Installs dependencies & validates environment
+.\start-backend.bat    # Starts Spring Boot server (port 8080)
+.\start-frontend.bat   # Starts React app (port 3000)
 ```
+
+### 🌐 Access Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080/api/health
+- **API Documentation**: http://localhost:8080/swagger-ui.html
 
 ### 2. Backend Setup (Spring Boot)
 ```powershell

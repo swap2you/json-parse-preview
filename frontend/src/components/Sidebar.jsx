@@ -1,5 +1,12 @@
+/**
+ * Sidebar Component - Modern tabbed interface for file uploads and controls
+ * Features: Gradient design, drag-and-drop uploads, animated transitions
+ */
 import React, { useState } from 'react';
-import { Upload, FileText, Database, Settings, File, RefreshCw, Eye, Code, Play } from 'lucide-react';
+import { 
+  Upload, FileText, Database, Settings, File, RefreshCw, Eye, Code, 
+  Play, Sparkles, Zap, Globe, FolderOpen, CheckCircle, AlertCircle 
+} from 'lucide-react';
 
 const Sidebar = ({
   requests,
@@ -14,11 +21,18 @@ const Sidebar = ({
   jsonPreviewMode,
   onTogglePreviewMode
 }) => {
+  // Component state for file uploads and UI
   const [collectionFile, setCollectionFile] = useState(null);
   const [environmentFile, setEnvironmentFile] = useState(null);
   const [jsonResponseFile, setJsonResponseFile] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
+  const [dragStates, setDragStates] = useState({
+    collection: false,
+    environment: false,
+    json: false
+  });
 
+  // File upload handlers with enhanced user feedback
   const handleCollectionUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -43,11 +57,43 @@ const Sidebar = ({
     }
   };
 
+  // Drag and drop handlers
+  const handleDragEnter = (type) => (e) => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [type]: true }));
+  };
+
+  const handleDragLeave = (type) => (e) => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [type]: false }));
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (type, handler) => (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handler({ target: { files: [file] } });
+    }
+    setDragStates(prev => ({ ...prev, [type]: false }));
+  };
+
   return (
-    <div className="w-80 bg-gradient-to-br from-gray-50 to-white border-r border-gray-200 flex flex-col h-full shadow-lg">
-      {/* Modern Header */}
-      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-purple-600">
-        <h1 className="text-2xl font-bold text-white flex items-center">
+    <div className="w-80 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 border-r border-gray-200 flex flex-col h-full shadow-xl">
+      {/* Enhanced Header with animated gradient */}
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 animate-gradient-x opacity-75"></div>
+        <div className="relative z-10">
+          <h1 className="text-2xl font-bold text-white flex items-center mb-2">
+            <Sparkles className="mr-3 h-6 w-6 animate-pulse" />
+            JSON Preview
+          </h1>
+          <p className="text-blue-100 text-sm">Modern API Response Beautifier</p>
+        </div>
+      </div>
           <Code className="w-6 h-6 mr-2" />
           JSON Preview
         </h1>
