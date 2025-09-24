@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "users": [
+      {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "profile": {
+          "age": 28,
+          "department": "Engineering",
+          "skills": ["JavaScript", "Python", "React", "Node.js"],
+          "address": {
+            "street": "123 Main St",
+            "city": "San Francisco",
+            "state": "CA",
+            "zipCode": "94105",
+            "coordinates": {
+              "latitude": 37.7749,
+              "longitude": -122.4194
+            }
+          },
+          "preferences": {
+            "theme": "dark",
+            "notifications": {
+              "email": true,
+              "sms": false,
+              "push": true
+            },
+            "privacy": {
+              "profileVisible": true,
+              "showEmail": false
+            }
+          }
+        },
+        "projects": [
+          {
+            "id": 101,
+            "name": "E-commerce Platform",
+            "status": "active",
+            "startDate": "2023-06-01",
+            "technologies": ["React", "Node.js", "MongoDB"],
+            "team": [
+              {
+                "name": "Alice Smith",
+                "role": "Frontend Developer"
+              },
+              {
+                "name": "Bob Johnson",
+                "role": "Backend Developer"
+              }
+            ]
+          },
+          {
+            "id": 102,
+            "name": "Mobile App",
+            "status": "completed",
+            "startDate": "2023-01-15",
+            "endDate": "2023-05-30",
+            "technologies": ["React Native", "Firebase"],
+            "metrics": {
+              "downloads": 15000,
+              "rating": 4.7,
+              "reviews": 1250
+            }
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "profile": {
+          "age": 32,
+          "department": "Design",
+          "skills": ["UI/UX", "Figma", "Adobe Creative Suite", "Prototyping"],
+          "address": {
+            "street": "456 Oak Avenue",
+            "city": "New York",
+            "state": "NY",
+            "zipCode": "10001",
+            "coordinates": {
+              "latitude": 40.7589,
+              "longitude": -73.9851
+            }
+          },
+          "preferences": {
+            "theme": "light",
+            "notifications": {
+              "email": true,
+              "sms": true,
+              "push": false
+            },
+            "privacy": {
+              "profileVisible": true,
+              "showEmail": true
+            }
+          }
+        },
+        "projects": [
+          {
+            "id": 201,
+            "name": "Design System",
+            "status": "active",
+            "startDate": "2023-08-01",
+            "technologies": ["Figma", "Storybook", "CSS"],
+            "components": [
+              "Button",
+              "Input",
+              "Modal",
+              "Navigation",
+              "Cards"
+            ]
+          }
+        ]
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 2,
+      "totalPages": 1,
+      "hasNextPage": false,
+      "hasPrevPage": false
+    },
+    "filters": {
+      "department": null,
+      "status": "active",
+      "sortBy": "name",
+      "sortOrder": "asc"
+    }
+  },
+  "meta": {
+    "requestId": "req_123456789",
+    "processingTime": "125ms",
+    "version": "v2.1",
+    "server": "api-server-01",
+    "cached": false,
+    "warnings": [],
+    "links": {
+      "self": "/api/v1/users?page=1&limit=10",
+      "next": null,
+      "prev": null,
+      "related": [
+        {
+          "rel": "projects",
+          "href": "/api/v1/projects"
+        },
+        {
+          "rel": "departments",
+          "href": "/api/v1/departments"
+        }
+      ]
+    }
+  }
+}

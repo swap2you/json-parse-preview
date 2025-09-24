@@ -1,0 +1,31 @@
+{
+  "status": "success",
+  "message": "Test JSON data",
+  "data": {
+    "user": {
+      "id": 123,
+      "name": "Test User",
+      "email": "test@example.com",
+      "preferences": {
+        "theme": "dark",
+        "notifications": true
+      }
+    },
+    "items": [
+      {
+        "id": 1,
+        "title": "First Item",
+        "completed": false
+      },
+      {
+        "id": 2,
+        "title": "Second Item", 
+        "completed": true
+      }
+    ],
+    "metadata": {
+      "timestamp": "2025-09-24T10:30:00Z",
+      "version": "1.0.0"
+    }
+  }
+}
