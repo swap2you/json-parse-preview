@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 import { 
   Upload, FileText, Database, Settings, File, RefreshCw, Eye, Code, 
-  Play, Sparkles, Zap, Globe, FolderOpen, CheckCircle, AlertCircle 
+  Play, Sparkles
 } from 'lucide-react';
 
 const Sidebar = ({
@@ -26,11 +26,7 @@ const Sidebar = ({
   const [environmentFile, setEnvironmentFile] = useState(null);
   const [jsonResponseFile, setJsonResponseFile] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
-  const [dragStates, setDragStates] = useState({
-    collection: false,
-    environment: false,
-    json: false
-  });
+  // Drag-and-drop state and handlers removed (not used in UI)
 
   // File upload handlers with enhanced user feedback
   const handleCollectionUpload = (event) => {
@@ -57,29 +53,7 @@ const Sidebar = ({
     }
   };
 
-  // Drag and drop handlers
-  const handleDragEnter = (type) => (e) => {
-    e.preventDefault();
-    setDragStates(prev => ({ ...prev, [type]: true }));
-  };
-
-  const handleDragLeave = (type) => (e) => {
-    e.preventDefault();
-    setDragStates(prev => ({ ...prev, [type]: false }));
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (type, handler) => (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      handler({ target: { files: [file] } });
-    }
-    setDragStates(prev => ({ ...prev, [type]: false }));
-  };
+  // (Drag-and-drop handlers removed)
 
   return (
     <div className="w-80 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 border-r border-gray-200 flex flex-col h-full shadow-xl">
@@ -93,11 +67,6 @@ const Sidebar = ({
           </h1>
           <p className="text-blue-100 text-sm">Modern API Response Beautifier</p>
         </div>
-      </div>
-          <Code className="w-6 h-6 mr-2" />
-          JSON Preview
-        </h1>
-        <p className="text-blue-100 text-sm mt-1">Explore APIs and JSON data</p>
       </div>
 
       {/* Tab Navigation */}
@@ -318,12 +287,20 @@ const Sidebar = ({
                 {requests.map((request, index) => (
                   <div
                     key={request.id || index}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onRequestSelect(request)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        onRequestSelect(request);
+                      }
+                    }}
                     className={`p-4 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
                       selectedRequest?.id === request.id
                         ? 'bg-blue-100 border-2 border-blue-300 shadow-md transform scale-105'
                         : 'bg-white border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                     }`}
+                    aria-pressed={selectedRequest?.id === request.id}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-gray-900">{request.name}</span>
