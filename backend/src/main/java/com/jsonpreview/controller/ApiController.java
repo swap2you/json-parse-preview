@@ -1,3 +1,6 @@
+package com.jsonpreview.controller;
+
+import java.util.Map;
 /**
  * Main REST API Controller for JsonParsePreview Application
  * 
@@ -14,7 +17,6 @@
  * @version 1.0.0
  * @since 2025-09-24
  */
-package com.jsonpreview.controller;
 
 import com.jsonpreview.dto.ApiResponseDto;
 import com.jsonpreview.dto.ExecuteRequestDto;
@@ -31,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 /**
  * REST Controller providing API endpoints for JSON processing and Postman collection management
@@ -43,16 +45,22 @@ import java.util.Map;
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ApiController {
+    // Common response keys
+    private static final String KEY_SUCCESS = "success";
+    private static final String KEY_ERROR = "error";
+    private static final String KEY_MESSAGE = "message";
     
     // Logger for tracking API requests and debugging
     private static final Logger logger = LoggerFactory.getLogger(ApiController.class);
     
     // Service dependencies injected via Spring's dependency injection
-    @Autowired
-    private PostmanParserService postmanParserService;
-    
-    @Autowired
-    private ApiExecutionService apiExecutionService;
+    private final PostmanParserService postmanParserService;
+    private final ApiExecutionService apiExecutionService;
+
+    public ApiController(PostmanParserService postmanParserService, ApiExecutionService apiExecutionService) {
+        this.postmanParserService = postmanParserService;
+        this.apiExecutionService = apiExecutionService;
+    }
     
     /**
      * Upload and parse a Postman collection file
@@ -73,7 +81,7 @@ public class ApiController {
      * }
      */
     @PostMapping("/upload/collection")
-    public ResponseEntity<?> uploadCollection(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> uploadCollection(@RequestParam("file") MultipartFile file) {
         try {
             logger.info("Uploading collection file: {} (size: {} bytes)", 
                        file.getOriginalFilename(), file.getSize());
@@ -83,50 +91,50 @@ public class ApiController {
             
             logger.info("Successfully parsed collection: {} with {} items", 
                        collection.getInfo().getName(), 
-                       collection.getItem().size());
+                       collection.getItems().size());
             
-            return ResponseEntity.ok().body(Map.of(
-                "success", true,
-                "message", "Collection uploaded successfully",
-                "collectionName", collection.getInfo().getName(),
-                "itemCount", collection.getItem().size()
-            ));
+            java.util.Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put(KEY_SUCCESS, true);
+            resp.put(KEY_MESSAGE, "Collection uploaded successfully");
+            resp.put("collectionName", collection.getInfo().getName());
+            resp.put("itemCount", collection.getItems().size());
+            return ResponseEntity.ok().body(resp);
         } catch (Exception e) {
             logger.error("Error uploading collection file '{}': {}", 
                         file.getOriginalFilename(), e.getMessage(), e);
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "error", "Failed to parse collection: " + e.getMessage()
-            ));
+            java.util.Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put(KEY_SUCCESS, false);
+            resp.put(KEY_ERROR, "Failed to parse collection: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
     
     @PostMapping("/upload/environment")
-    public ResponseEntity<?> uploadEnvironment(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> uploadEnvironment(@RequestParam("file") MultipartFile file) {
         try {
             logger.info("Uploading environment file: {}", file.getOriginalFilename());
             PostmanEnvironment environment = postmanParserService.parseEnvironment(file);
-            return ResponseEntity.ok().body(Map.of(
-                "success", true,
-                "message", "Environment uploaded successfully",
-                "environmentName", environment.getName()
-            ));
+            java.util.Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put(KEY_SUCCESS, true);
+            resp.put(KEY_MESSAGE, "Environment uploaded successfully");
+            resp.put("environmentName", environment.getName());
+            return ResponseEntity.ok().body(resp);
         } catch (Exception e) {
             logger.error("Error uploading environment: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "error", e.getMessage()
-            ));
+            java.util.Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put(KEY_SUCCESS, false);
+            resp.put(KEY_ERROR, e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
     
     @PostMapping("/upload/json-response")
-    public ResponseEntity<?> uploadJsonResponse(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> uploadJsonResponse(@RequestParam("file") MultipartFile file) {
         try {
             logger.info("Uploading JSON response file: {}", file.getOriginalFilename());
             
             // Read and parse the JSON file
-            String jsonContent = new String(file.getBytes(), "UTF-8");
+            String jsonContent = new String(file.getBytes(), StandardCharsets.UTF_8);
             Object parsedJson = postmanParserService.parseJsonResponse(jsonContent);
             
             // Create response similar to API execution response
@@ -136,17 +144,17 @@ public class ApiController {
             response.setExecutionTimeMs(0L);
             response.setTimestamp(java.time.LocalDateTime.now());
             
-            return ResponseEntity.ok().body(Map.of(
-                "success", true,
-                "message", "JSON response uploaded successfully",
-                "response", response
-            ));
+            java.util.Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put(KEY_SUCCESS, true);
+            resp.put(KEY_MESSAGE, "JSON response uploaded successfully");
+            resp.put("response", response);
+            return ResponseEntity.ok().body(resp);
         } catch (Exception e) {
             logger.error("Error uploading JSON response: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "error", "Invalid JSON file: " + e.getMessage()
-            ));
+            java.util.Map<String, Object> resp = new java.util.HashMap<>();
+            resp.put(KEY_SUCCESS, false);
+            resp.put(KEY_ERROR, "Invalid JSON file: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
     
@@ -177,28 +185,12 @@ public class ApiController {
     }
     
     @GetMapping("/health")
-    public ResponseEntity<?> health() {
-        return ResponseEntity.ok().body(Map.of(
-            "status", "UP",
-            "timestamp", System.currentTimeMillis()
-        ));
+    public ResponseEntity<Map<String, Object>> health() {
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("status", "UP");
+        resp.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.ok().body(resp);
     }
     
-    // Helper method for creating Map responses
-    private static class Map {
-        public static java.util.Map<String, Object> of(String k1, Object v1, String k2, Object v2) {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put(k1, v1);
-            map.put(k2, v2);
-            return map;
-        }
-        
-        public static java.util.Map<String, Object> of(String k1, Object v1, String k2, Object v2, String k3, Object v3) {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put(k1, v1);
-            map.put(k2, v2);
-            map.put(k3, v3);
-            return map;
-        }
-    }
+    // (Removed custom Map.of helper)
 }
